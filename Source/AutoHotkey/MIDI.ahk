@@ -1,35 +1,47 @@
 #Requires AutoHotkey v2.0
+#Include ..\..\Libraries\MIDIv2\MIDIv2.ahk
 
 class MIDI
 {
-    static Port := 0
+    static Device := ""
 
     static Start()
     {
+        MIDI.Device := MidiV2()
+
+        ports := MIDI.Device.GetMidiOutDevices()
+
+        portId := -1
+
+        for index, port in ports
+        {
+            if (port = Config.MidiPort)
+            {
+                portId := index - 1
+                break
+            }
+        }
+
+        if (portId = -1)
+        {
+            MsgBox "MIDI port '" Config.MidiPort "' not found."
+            ExitApp
+        }
+
+        MIDI.Device.OpenMidiOut(portId)
+        MIDI.Device.OutputChannel := Config.MidiChannel
+
         if Config.Debug
-            MsgBox "MIDI initialized."
+            MsgBox "Connected to " Config.MidiPort
     }
 
     static NoteOn(note, velocity := 127)
     {
-        MIDI.Send(0x90, note, velocity)
+        MIDI.Device.SendNoteOn(note, velocity)
     }
 
     static NoteOff(note)
     {
-        MIDI.Send(0x80, note, 0)
-    }
-
-    static Send(status, data1, data2)
-    {
-        if Config.Debug
-        {
-            MsgBox Format(
-                "Status : 0x{:X}`nData1 : {}`nData2 : {}",
-                status,
-                data1,
-                data2
-            )
-        }
+        MIDI.Device.SendNoteOff(note)
     }
 }
