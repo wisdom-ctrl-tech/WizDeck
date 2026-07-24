@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-class WizConfig
+class Config
 {
     static MidiPort    := "WizDeck"
 

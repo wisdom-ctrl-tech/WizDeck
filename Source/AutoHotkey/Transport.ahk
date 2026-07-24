@@ -7,4 +7,10 @@ class Transport
         if Config.Debug
             MsgBox "Transport module loaded."
     }
+
+    static Play()
+    {
+        if Config.Debug
+            MsgBox "Play requested."
+    }
 }
