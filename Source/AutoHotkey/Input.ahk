@@ -4,7 +4,7 @@ class Input
 {
     static Start()
     {
-        Hotkey "F9", Input.Play
+        Hotkey Config.PlayKey, Input.Play
     }
 
     static Play(*)

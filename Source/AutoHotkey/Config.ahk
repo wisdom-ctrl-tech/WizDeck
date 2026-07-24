@@ -8,4 +8,6 @@ class Config
 
     static ModifierKey := "LAlt"
     static InputDelay  := 5
+
+    static PlayKey := "F9"
 }
