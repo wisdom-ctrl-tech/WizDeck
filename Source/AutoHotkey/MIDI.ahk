@@ -2,20 +2,34 @@
 
 class MIDI
 {
+    static Port := 0
+
     static Start()
     {
         if Config.Debug
-            MsgBox "MIDI module loaded."
+            MsgBox "MIDI initialized."
+    }
+
+    static NoteOn(note, velocity := 127)
+    {
+        MIDI.Send(0x90, note, velocity)
+    }
+
+    static NoteOff(note)
+    {
+        MIDI.Send(0x80, note, 0)
     }
 
     static Send(status, data1, data2)
     {
         if Config.Debug
+        {
             MsgBox Format(
-                "MIDI`nStatus: {1}`nData1: {2}`nData2: {3}",
+                "Status : 0x{:X}`nData1 : {}`nData2 : {}",
                 status,
                 data1,
                 data2
             )
+        }
     }
 }

@@ -10,6 +10,6 @@ class Transport
 
     static Play()
     {
-        MIDI.Send(0x90, 60, 127)
+        MIDI.NoteOn(60)
     }
 }

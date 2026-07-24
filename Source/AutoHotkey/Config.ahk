@@ -9,5 +9,7 @@ class Config
     static ModifierKey := "LAlt"
     static InputDelay  := 5
 
-    static PlayKey := "F9"
+    static PlayKey     := "F9"
+
+    static MidiChannel := 1
 }
