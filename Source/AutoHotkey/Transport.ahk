@@ -10,7 +10,6 @@ class Transport
 
     static Play()
     {
-        if Config.Debug
-            MsgBox "Play requested."
+        MIDI.Send(0x90, 60, 127)
     }
 }
