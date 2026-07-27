@@ -12,29 +12,16 @@ class EQ
     static High2 := 64
     static Filter2 := 64
 
-    static Step := 0.25
-
     static Start()
     {
     }
 
-    static Clamp(value)
+    static SetLowDeck1(value)
     {
-        if (value > 127)
-            return 127
-
-        if (value < 0)
-            return 0
-
-        return Round(value)
-    }
-
-    static AdjustLowDeck1(dx, dy)
-    {
-        EQ.Low1 := EQ.Clamp(EQ.Low1 + (dy * EQ.Step))
-
+        EQ.Low1 := value
         MIDI.ControlChange(Mapping.LowEQ1, EQ.Low1)
 
-        ToolTip "LOW D1: " EQ.Low1
+        if Config.Debug
+            ToolTip "LOW D1: " EQ.Low1
     }
 }

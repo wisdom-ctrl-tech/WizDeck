@@ -2,22 +2,35 @@
 
 class MouseAxis
 {
+    static WM_INPUT := 0x00FF
+    static RID_INPUT := 0x10000003
+    static RIM_TYPEMOUSE := 0
+    static MOUSE_MOVE_RELATIVE := 0
+
+    static HID_USAGE_PAGE_GENERIC := 0x01
+    static HID_USAGE_GENERIC_MOUSE := 0x02
+    static RIDEV_INPUTSINK := 0x00000100
+
     static Active := false
-
     static Callback := 0
-
-    static LockX := 0
-    static LockY := 0
-
-    static OriginalX := 0
-    static OriginalY := 0
-
-    static DeadZone := 2
-    static Sensitivity := 1.0
 
     static Start()
     {
-        SetTimer(MouseAxis.Update.Bind(MouseAxis), 10)
+        OnMessage(MouseAxis.WM_INPUT, MouseAxis.OnInput)
+        MouseAxis.Register()
+    }
+
+    static Register()
+    {
+        ; RAWINPUTDEVICE (x64, 16 bytes)
+        rid := Buffer(8 + A_PtrSize, 0)
+        NumPut("UShort", MouseAxis.HID_USAGE_PAGE_GENERIC, rid, 0)   ; +0: usUsagePage
+        NumPut("UShort", MouseAxis.HID_USAGE_GENERIC_MOUSE, rid, 2)  ; +2: usUsage
+        NumPut("UInt", MouseAxis.RIDEV_INPUTSINK, rid, 4)            ; +4: dwFlags
+        NumPut("Ptr", A_ScriptHwnd, rid, 8)                           ; +8: hwndTarget
+
+        if !DllCall("RegisterRawInputDevices", "Ptr", rid, "UInt", 1, "UInt", rid.Size)
+            throw Error("RegisterRawInputDevices failed")
     }
 
     static Begin(callback)
@@ -25,13 +38,8 @@ class MouseAxis
         if MouseAxis.Active
             return
 
-        MouseGetPos(&x, &y)
-
-        MouseAxis.OriginalX := x
-        MouseAxis.OriginalY := y
-
-        MouseAxis.LockX := x
-        MouseAxis.LockY := y
+        if !(IsObject(callback) && HasMethod(callback, "Call"))
+            throw ValueError("MouseAxis.Begin requires a callable callback")
 
         MouseAxis.Callback := callback
         MouseAxis.Active := true
@@ -44,55 +52,79 @@ class MouseAxis
 
         MouseAxis.Active := false
         MouseAxis.Callback := 0
-
-        DllCall("SetCursorPos"
-            , "Int", MouseAxis.OriginalX
-            , "Int", MouseAxis.OriginalY)
-
         ToolTip
     }
 
-    static Update(*)
+    static CallbackReady()
     {
-        if !MouseAxis.Active
+        return MouseAxis.Active
+            && IsObject(MouseAxis.Callback)
+            && HasMethod(MouseAxis.Callback, "Call")
+    }
+
+    static OnInput(wParam, lParam, msg, hwnd)
+    {
+        if !MouseAxis.CallbackReady()
             return
 
-        MouseGetPos(&x, &y)
+        ; RAWINPUTHEADER (x64, 24 bytes = 8 + 2*A_PtrSize)
+        ;   +0: dwType   (DWORD)
+        ;   +4: dwSize   (DWORD)
+        ;   +8: hDevice  (HANDLE)
+        ;  +16: wParam   (WPARAM)
+        headerSize := 8 + 2 * A_PtrSize
 
-        dx := x - MouseAxis.LockX
-        dy := MouseAxis.LockY - y
+        size := 0
+        if (DllCall("GetRawInputData"
+                , "Ptr", lParam
+                , "UInt", MouseAxis.RID_INPUT
+                , "Ptr", 0
+                , "UInt*", &size
+                , "UInt", headerSize
+                , "UInt") = 0xFFFFFFFF)
+            return
 
-        if (Abs(dx) < MouseAxis.DeadZone)
-            dx := 0
+        if (size <= 0)
+            return
 
-        if (Abs(dy) < MouseAxis.DeadZone)
-            dy := 0
+        buf := Buffer(size, 0)
+
+        if (DllCall("GetRawInputData"
+                , "Ptr", lParam
+                , "UInt", MouseAxis.RID_INPUT
+                , "Ptr", buf
+                , "UInt*", &size
+                , "UInt", headerSize
+                , "UInt") = 0xFFFFFFFF)
+            return
+
+        ; RAWINPUT.header.dwType at +0
+        if (NumGet(buf, 0, "UInt") != MouseAxis.RIM_TYPEMOUSE)
+            return
+
+        ; RAWINPUT.data.mouse (RAWMOUSE) begins at +24 on x64
+        ;   +0: usFlags             (USHORT)
+        ;   +2: usButtonFlags       (USHORT)
+        ;   +4: usButtonData        (USHORT)
+        ;   +6: padding             (USHORT, alignment)
+        ;   +8: ulRawButtons        (ULONG)
+        ;  +12: lLastX              (LONG)
+        ;  +16: lLastY              (LONG)
+        ;  +20: ulExtraInformation  (ULONG)
+        mouseOffset := headerSize
+
+        ; RAWMOUSE.usFlags at mouse +0
+        if (NumGet(buf, mouseOffset, "UShort") != MouseAxis.MOUSE_MOVE_RELATIVE)
+            return
+
+        ; RAWMOUSE.lLastX at mouse +12
+        dx := NumGet(buf, mouseOffset + 12, "Int")
+        ; RAWMOUSE.lLastY at mouse +16
+        dy := NumGet(buf, mouseOffset + 16, "Int")
 
         if (!dx && !dy)
             return
 
-        dx *= MouseAxis.Sensitivity
-        dy *= MouseAxis.Sensitivity
-
-        DllCall("SetCursorPos"
-            , "Int", MouseAxis.LockX
-            , "Int", MouseAxis.LockY)
-
-        if (MouseAxis.Callback)
-            MouseAxis.Callback.Call(dx, dy)
+        MouseAxis.Callback.Call(dx, dy)
     }
-}
-
-; --------------------------------------------------
-; TEMP TEST
-; --------------------------------------------------
-
-z::
-{
-    MouseAxis.Begin(ObjBindMethod(EQ, "AdjustLowDeck1"))
-}
-
-z Up::
-{
-    MouseAxis.End()
 }

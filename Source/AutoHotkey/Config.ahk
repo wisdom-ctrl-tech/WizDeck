@@ -9,6 +9,9 @@ class Config
     static ModifierKey := "LAlt"
     static InputDelay := 5
 
+    static MouseDeadZone := 2
+    static MouseSensitivity := 1.0
+
     ; Toggle WizDeck
     static ToggleKey := "\"
 

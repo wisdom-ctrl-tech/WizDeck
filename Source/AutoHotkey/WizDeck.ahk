@@ -5,6 +5,7 @@
 #Include Mapping.ahk
 #Include EQ.ahk
 #Include MouseAxis.ahk
+#Include Analog.ahk
 #Include Input.ahk
 #Include Transport.ahk
 

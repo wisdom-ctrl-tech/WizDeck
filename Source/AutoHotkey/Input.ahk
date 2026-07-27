@@ -33,6 +33,13 @@ class Input
 
         ; End conditional hotkeys
         HotIf
+
+        ; TEMP TEST — hold Z to drive EQ via Analog
+        if Config.Debug
+        {
+            Hotkey "z", Input.AnalogTestDown
+            Hotkey "z Up", Input.AnalogTestUp
+        }
     }
 
     static Ready(*)
@@ -97,5 +104,28 @@ class Input
     static LoopDeck2(*)
     {
         Transport.LoopDeck2()
+    }
+
+    ;=========================
+    ; TEMP TEST — Analog
+    ;=========================
+
+    static AnalogTestDown(*)
+    {
+        Analog.Begin(ObjBindMethod(EQ, "SetLowDeck1"), {
+            Min: 0,
+            Max: 127,
+            InitialValue: EQ.Low1,
+            Step: 0.25,
+            Axis: "Y",
+            Invert: true,
+            Sensitivity: Config.MouseSensitivity,
+            DeadZone: Config.MouseDeadZone
+        })
+    }
+
+    static AnalogTestUp(*)
+    {
+        Analog.End()
     }
 }
