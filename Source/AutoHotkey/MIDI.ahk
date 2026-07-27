@@ -44,4 +44,9 @@ class MIDI
     {
         MIDI.Device.SendNoteOff(note)
     }
+
+    static ControlChange(controller, value)
+    {
+        MIDI.Device.SendControlChange(controller, value)
+    }
 }

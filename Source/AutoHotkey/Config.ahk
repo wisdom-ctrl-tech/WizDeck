@@ -2,14 +2,27 @@
 
 class Config
 {
-    static MidiPort    := "WizDeck"
+    static MidiPort := "WizDeck"
 
-    static Debug       := true
+    static Debug := false
 
     static ModifierKey := "LAlt"
-    static InputDelay  := 5
+    static InputDelay := 5
 
-    static PlayKey     := "F9"
+    ; Toggle WizDeck
+    static ToggleKey := "\"
+
+    ; Deck 1
+    static PlayDeck1 := "Q"
+    static CueDeck1  := "W"
+    static SyncDeck1 := "E"
+    static LoopDeck1 := "R"
+
+    ; Deck 2
+    static PlayDeck2 := "A"
+    static CueDeck2  := "S"
+    static SyncDeck2 := "D"
+    static LoopDeck2 := "F"
 
     static MidiChannel := 1
 }
