@@ -1,50 +1,70 @@
-&#x20;         WIZDECK
+\# WizDeck Roadmap
 
 
 
-┌───────────────┐
+\## Engine
 
-│   Keyboard    │
 
-└──────┬────────┘
 
-&#x20;      │
+\- \[x] MIDI
 
-&#x20;      ▼
+\- \[x] Transport
 
-┌───────────────┐
+\- \[x] Callback Engine
 
-│ AutoHotkey    │
+\- \[ ] Raw Input
 
-└──────┬────────┘
 
-&#x20;      │
 
-&#x20;      ▼
+\## Mixer
 
-┌───────────────┐
 
-│  loopMIDI     │
 
-└──────┬────────┘
+\- \[ ] EQ
 
-&#x20;      │
+\- \[ ] Filter
 
-&#x20;      ▼
+\- \[ ] Gain
 
-┌───────────────┐
 
-│ Mixxx Script  │
 
-└──────┬────────┘
+\## Effects
 
-&#x20;      │
 
-&#x20;      ▼
 
-┌───────────────┐
+\- \[ ] FX Slots
 
-│   DJ Action   │
+\- \[ ] FX Parameters
 
-└───────────────┘
+
+
+\## Library
+
+
+
+\- \[ ] Browse
+
+\- \[ ] Load Track
+
+\- \[ ] Search
+
+
+
+\## UI
+
+
+
+\- \[ ] HUD
+
+\- \[ ] Notifications
+
+\- \[ ] Settings
+
+
+
+\## Release
+
+
+
+\- \[ ] v1.0
 
