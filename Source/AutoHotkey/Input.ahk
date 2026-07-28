@@ -112,16 +112,18 @@ class Input
 
     static AnalogTestDown(*)
     {
-        Analog.Begin(ObjBindMethod(EQ, "SetLowDeck1"), {
-            Min: 0,
-            Max: 127,
-            InitialValue: EQ.Low1,
-            Step: 0.25,
-            Axis: "Y",
-            Invert: true,
-            Sensitivity: Config.MouseSensitivity,
-            DeadZone: Config.MouseDeadZone
-        })
+        ; Merge a copy of the EQ profile with runtime overrides so shared profiles remain immutable
+        merged := {}
+        for k, v in ControlProfiles.EQ
+            merged[k] := v
+
+        merged.InitialValue := EQ.Low1
+        merged.Step := 0.25
+        merged.Invert := true
+        merged.Sensitivity := Config.MouseSensitivity
+        merged.DeadZone := Config.MouseDeadZone
+
+        Analog.Begin(ObjBindMethod(EQ, "SetLowDeck1"), merged)
     }
 
     static AnalogTestUp(*)

@@ -25,7 +25,11 @@ class Analog
 
         Analog.Callback := callback
         Analog.ResetOptions()
-        Analog.ApplyOptions(options)
+
+        ; Resolve a profile name or profile object before applying options.
+        resolved := Analog.ResolveProfile(options)
+        Analog.ApplyOptions(resolved)
+
         Analog.Active := true
         MouseAxis.Begin(Analog.OnMouseMove)
     }
@@ -90,6 +94,46 @@ class Analog
             return options.%name%
 
         return default
+    }
+
+    ; ResolveProfile accepts:
+    ; - a profile name string (e.g. "EQ") and attempts to look up ControlProfiles.<Name>
+    ; - a profile object (Map or plain object) which is copied and returned
+    ; - any other value is returned unchanged (preserves backward compatibility)
+    static ResolveProfile(options)
+    {
+        if !options
+            return options
+
+        if IsObject(options)
+            return Analog.CopyOptions(options)
+
+        if (options is String)
+        {
+            try
+            {
+                ; Attempt to resolve a named profile from ControlProfiles without creating a hard dependency
+                profile := ControlProfiles.%options%
+                if IsObject(profile)
+                    return Analog.CopyOptions(profile)
+            }
+            catch
+            {
+                ; If ControlProfiles is not present or property doesn't exist, fall through
+            }
+        }
+
+        return options
+    }
+
+    ; Shallow-copy a simple options object (Map or plain object) so callers receive
+    ; an independent instance and cannot mutate shared ControlProfiles definitions.
+    static CopyOptions(src)
+    {
+        new := {}
+        for k, v in src
+            new[k] := v
+        return new
     }
 
     static OnMouseMove(dx, dy)
