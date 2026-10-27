@@ -22,13 +22,13 @@ Create Intuition.
 
 
 
-Lead DJ:
+Lead Contributor:
 
-Wiz
+Wisdom
 
 
 
 Lead Developer:
 
-ChatGPT
+Wisdom
 
